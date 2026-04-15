@@ -37,4 +37,5 @@ La implementación de este sistema requiere configuración de servidores VPS, ma
 Si tienes una empresa o agencia y quieres que diseñe, instale y mantenga una fábrica de contenido autónoma adaptada a tu marca, contáctame.
 
 🌐 Visita mi web y conoce mis servicios: vangard-ai.com
+
 📩 O contrátame a través de Workana: Mi Perfil de Workana
