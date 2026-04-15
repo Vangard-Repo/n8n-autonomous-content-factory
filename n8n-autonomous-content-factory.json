@@ -1,0 +1,5469 @@
+{
+  "name": "PARA GITHUB: content creation for instagram VIDEOS + SUBTITULOS + 4 SLIDES LISTO RUNWAYML",
+  "nodes": [
+    {
+      "parameters": {
+        "fieldToSplitOut": "items",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        16
+      ],
+      "id": "099b774b-f333-4df7-9daf-19266b4962df",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "49ea4d39-4b40-40ac-9784-34d1b4d9b6d5",
+              "leftValue": "={{ $json.content }}",
+              "rightValue": "v.redd.it",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1488,
+        16
+      ],
+      "id": "df0c0cfd-9ce2-488f-8405-0864c1ac85ad",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "enlace_mp4",
+              "cssSelector": ".download-info a.downloadbutton",
+              "returnValue": "attribute",
+              "attribute": "href"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        1488,
+        192
+      ],
+      "id": "8ba44070-e659-47a5-ae2f-5f2a2c402f2e",
+      "name": "HTML"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        1920,
+        0
+      ],
+      "id": "15642fec-4244-4bef-8ae2-3128dc25e6bc",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        1792,
+        336
+      ],
+      "id": "818b07ae-597d-41bf-a2b9-f786fdf423c9",
+      "name": "DeepSeek Chat Model",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "NTDyXAq9jm6H9TCS",
+          "name": "DeepSeek account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.rss2json.com/v1/api.json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "rss_url",
+              "value": "https://www.reddit.com/r/KlingAI_Videos/top.rss?t=day"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        848,
+        16
+      ],
+      "id": "d3107730-1a2a-4fc9-9bf1-2fdcb91dab26",
+      "name": "RSS Read",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "maxTries": 5
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"gancho_carrusel\": \"texto del carrusel en MAYÚSCULAS\",\n  \"explicacion_slide_2\": \"texto de urgencia del carrusel\",\n  \"gancho_reel\": \"texto del reel cuestionando al usuario en MAYÚSCULAS\",\n  \"cta_reel\": \" COMENTA [PALABRA] PARA APRENDER \",\n  \"cta_reel_tiktok\": \" ENVÍAME AL DM [PALABRA] PARA APRENDER \",\n  \"texto_cta_youtube\": \"ENLACE EN MI PERFIL PARA APRENDER\",\n  \"caption\": \"tu caption para instagram con los CTAs de comentar\",\n  \"caption_tiktok\": \"tu caption para tiktok con los CTAs de enviar DM\",\n  \"caption_youtube\": \"tu caption para youtube con el CTA al enlace del perfil\",\n  \"titulo_youtube\": \"tu titulo viral en español (máximo 60 caracteres)\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1936,
+        336
+      ],
+      "id": "a22ceb71-a18b-463d-978d-406d75fa09e5",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "url": "=https://rapidsave.com/info?url={{ $('Limit').item.json.link }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1312,
+        192
+      ],
+      "id": "d07dbf32-d08c-4c6b-aa1c-dacaa1b57b80",
+      "name": "rapidsave"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=\nTítulo original del usuario: {{ $('Limit').item.json.title }}\nComunidad de origen: r/{{ $('Limit').item.json.categories[0] }}\n\n--- CONTEXTO VISUAL (LO QUE SE VE EN EL THUMBNAIL DEL VIDEO) ---\n{{ $('imagen content').item.json.content }}\n\n--- CONTEXTO SOCIAL (LO QUE DICE LA GENTE) ---\n{{ $('Code Comentarios').item.json.contexto_comentarios }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "==\nTítulo original de REDDIT: {{ $('Limit').item.json.title }}\nComunidad de origen: r/{{ $('Limit').item.json.categories[0] }}\n\n--- CONTEXTO VISUAL (LO QUE SE VE EN EL THUMBNAIL DEL VIDEO) ---\n{{ $('imagen content').item.json.content }}\n\n--- CONTEXTO SOCIAL (LO QUE DICE LA GENTE) ---\n{{ $('Code Comentarios').item.json.contexto_comentarios }}\n\nEres el Director de Arte y Estratega Viral de una cuenta premium de tecnología e Inteligencia Artificial.\nRecibirás el \"Título original\" de un post de Reddit y la \"Comunidad de origen\" (ej. aivideo, midjourney, ChatGPT).\n\nEL PROBLEMA: Los títulos de Reddit son aburridos.\nTU MISIÓN: Transformar ese concepto en titulares hiper-virales para Carrusel y para Reel.\n\nREGLA DE MANYCHAT (PALABRA CLAVE DINÁMICA): Elige ALEATORIAMENTE una de estas 4 palabras clave:[IA, VANGARD, FUTURO, DOMINIO]. Esta misma palabra debe usarse tanto en los cta_reel como en los captions.\n\nRedacta siete textos:\n\n1. El \"gancho_carrusel\" (Texto sobre el video - Slide 1 del Carrusel):\n- Estilo: Estilo \"Tech Bro\" viral, sensacionalista, directo al grano y generando FOMO o asombro extremo (\"unhinged\").\n- Formato OBLIGATORIO: TODO EN MAYÚSCULAS CERRADAS Y EN ESPAÑOL.\n- Ejemplos del tono que DEBES imitar:\n  * \"HOLLYWOOD ESTÁ ACABADO. LA IA ACABA DE CREAR UN EPISODIO DE EVANGELION DE 1$M EN POCOS DÍAS\"\n  * \"LA IA REIMAGINÓ A HARRY POTTER COMO UN MULTIVERSO DE FISICOCULTURISMO Y ES UNA LOCURA TOTAL\"\n  * \"¿ENTIENDES LO QUE ACABA DE PASAR EN LAS ÚLTIMAS 24 HORAS CON LA IA?\"\n  * \"ALGUIEN CONSTRUYÓ UNA MANO IMPRESA EN 3D PARA BLOQUEAR EL SOL\"\n\n2. La \"explicacion_slide_2\" (Texto explicativo - Slide 2 del Carrusel):\n- Longitud: Entre 15 y 30 palabras.\n- Enfoque: URGENCIA Y SUPERVIVENCIA PROFESIONAL. Como no tienes el contexto visual exacto, tu tarea NO es explicar el video técnicamente, sino usarlo como excusa para advertir cómo la IA está avanzando tan rápido que reemplazará a quienes no aprendan a usarla.\n- Ejemplos del tono que DEBES imitar:\n  * \"Mientras tú sigues dudando de la IA, alguien más ya está automatizando su trabajo y creando estudios enteros desde su habitación.\"\n  * \"La pregunta ya no es si la IA te reemplazará, sino cuándo. Domina estas herramientas hoy o prepárate para quedar obsoleto mañana.\"\n  * \"El nivel de hiperrealismo está destruyendo las barreras de entrada. Quienes dominen la automatización dominarán el mercado. Los demás quedarán fuera.\"\n- Formato: Texto normal (No mayúsculas).\n\n3. El \"gancho_reel\" (Texto sobrepuesto en el Video corto):\n- Estilo: Debe combinar el asombro del video con un ataque directo al espectador por no estar al día con la tecnología.\n- Formato OBLIGATORIO: TODO EN MAYÚSCULAS CERRADAS Y EN ESPAÑOL.\n- Ejemplos del tono que DEBES imitar:\n  * \"ALGUIEN HIZO ESTE VIDEO DE HARRY POTTER EN MINUTOS Y TÚ AÚN NO SABES USAR IA?\"\n  * \"ESTA IA ACABA DE DESTRUIR A HOLLYWOOD Y TÚ SIGUES HACIENDO EXCEL MANUALMENTE.\"\n  * \"ESTE VIDEO FUE GENERADO CON IA EN 5 MINUTOS. ¿TÚ QUÉ HICISTE HOY PARA NO QUEDAR OBSOLETO?\"\n\n4. El \"cta_reel\" (Texto pequeño al final del Video corto PARA INSTAGRAM):\n- Formato OBLIGATORIO: TODO EN MAYÚSCULAS CERRADAS.\n- Instrucción: Debe incluir la PALABRA CLAVE invitando a COMENTAR.\n- Ejemplos del formato que DEBES imitar:\n  * \"COMENTA LA PALABRA[PALABRA_ELEGIDA] Y TE ENSEÑO CÓMO\"\n  * \"ESCRIBE[PALABRA_ELEGIDA] PARA APRENDER GRATIS\"\n- No coloques la palabra elegida para cumplir con la REGLA MANYCHAT dentro de corchetes.\n\n5. El \"cta_reel_tiktok\" (Texto pequeño al final del Video corto PARA TIKTOK):\n- Formato OBLIGATORIO: TODO EN MAYÚSCULAS CERRADAS.\n- Instrucción: Debe incluir la PALABRA CLAVE invitando a ENVIAR UN DM (Mensaje Directo).\n- Ejemplos del formato que DEBES imitar:\n  * \"ENVÍAME AL DM LA PALABRA [PALABRA_ELEGIDA] PARA APRENDER\"\n  * \"MÁNDAME AL DM [PALABRA_ELEGIDA] Y TE ENSEÑO CÓMO\"\n- No coloques la palabra elegida para cumplir con la REGLA MANYCHAT dentro de corchetes.\n\n6. Post Caption PARA INSTAGRAM (Estructura Estricta):\n-Cuerpo: Tono amigable pero urgente.\n-REGLA DE ORO (Final del texto): Inmediatamente después del cuerpo del mensaje, incluye SIEMPRE y de forma exacta:\n\"👇 ¿Tienes miedo del inevitable momento en que la IA te reemplace en tu trabajo? No dejes que ocurra.\n🎁 Comenta la palabra[PALABRA_ELEGIDA] y te enviaré por DM el acceso a nuestra formación GRATUITA de 7 días para que domines la IA y la apliques en tus proyectos.\"\n-Bloque de Hashtags: Incluye de 3 a 5 hashtags relevantes únicamente al final de todo el post, después de una línea de separación o espacio en blanco. PROHIBIDO colocar hashtags dentro del cuerpo del mensaje o de la Regla de Oro.\n- No coloques la palabra elegida para cumplir con la REGLA MANYCHAT dentro de corchetes.\n\n7. Post Caption PARA TIKTOK (Estructura Estricta):\n-Cuerpo: Usa exactamente el MISMO cuerpo amigable pero urgente que generaste para Instagram.\n-REGLA DE ORO TIKTOK (Final del texto): Inmediatamente después del cuerpo del mensaje, incluye SIEMPRE y de forma exacta:\n\"👇 ¿Tienes miedo del inevitable momento en que la IA te reemplace en tu trabajo? No dejes que ocurra.\n🎁 Envíame un DM con la palabra [PALABRA_ELEGIDA] y te daré acceso a nuestra formación GRATUITA de 7 días para que domines la IA y la apliques en tus proyectos.\"\n-Bloque de Hashtags: Incluye de 3 a 5 hashtags relevantes únicamente al final de todo el post, después de una línea de separación o espacio en blanco. PROHIBIDO colocar hashtags dentro del cuerpo del mensaje o de la Regla de Oro.\n- No coloques la palabra elegida para cumplir con la REGLA MANYCHAT dentro de corchetes.\n\n8. Post Caption PARA YOUTUBE SHORTS:\n-Cuerpo: El mismo cuerpo amigable pero urgente.\n-REGLA DE ORO YOUTUBE: \"👇 ¿No quieres quedar obsoleto? \\n🔗 Ve al ENLACE EN MI PERFIL para acceder a nuestra formación GRATUITA de 7 días y domina la IA hoy mismo.\"\n\n9. Título PARA YOUTUBE SHORTS:\nTraduce y adapta el título original de REDDIT al ESPAÑOL.\nHazlo súper atractivo, directo y corto (máximo 60 caracteres).\nEjemplos: \"El nivel de esta IA es ABSURDO\", \"Creó a Harry Potter con IA en 5 min\".\n\nDevuelve ÚNICAMENTE un objeto JSON válido con esta estructura exacta, sin formato markdown:\n{\n  \"gancho_carrusel\": \"tu texto en MAYÚSCULAS aquí\",\n  \"explicacion_slide_2\": \"tu advertencia de urgencia aquí\",\n  \"gancho_reel\": \"tu texto de ataque/asombro en MAYÚSCULAS aquí\",\n  \"cta_reel\": \"tu CTA de instagram sin emojis y PALABRA_ELEGIDA aquí\",\n  \"cta_reel_tiktok\": \"tu CTA de tiktok sin emojis y PALABRA_ELEGIDA aquí\",\n  \"texto_cta_youtube\": \"ENLACE EN MI PERFIL PARA APRENDER (obligatorio sin emojis)\",\n  \"caption\": \"tu caption para instagram con el cierre oficial aquí\",\n  \"caption_tiktok\": \"tu caption para tiktok con el cierre de DM aquí\",\n  \"caption_youtube\": \"tu caption para youtube invitando al enlace del perfil aquí\"\n}"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        1792,
+        192
+      ],
+      "id": "f9d3c82d-732f-4de0-b507-b327cc0c3250",
+      "name": "DeepSeek"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        928,
+        1296
+      ],
+      "id": "8bf05c7b-bd77-4a72-a003-b21306cd227b",
+      "name": "Wait"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.cloudconvert.com/v2/jobs/{{ $('CloudConvert').item.json.data.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "TU_TOKEN"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1072,
+        1296
+      ],
+      "id": "d7c9435e-8616-4d7b-9036-9abc6c939e75",
+      "name": "Verificar Status"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a21bf4e4-bd68-4c8b-bbd1-dd82c1bd67a0",
+              "leftValue": "={{ $json.data.status }}",
+              "rightValue": "finished",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1200,
+        1296
+      ],
+      "id": "9300c105-41e5-4d69-b2e0-380e5e6d81b9",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloudconvert.com/v2/jobs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "TU_TOKEN_CLOUDCONVERT"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"tasks\": {\n    \"importar-video-reddit\": {\n      \"operation\": \"import/url\",\n      \"url\": \"{{ $('subir video con transcript a github').item.json.secure_url }}\",\n      \"filename\": \"video.mp4\"\n    },\n    \"importar-slide-1\": {\n      \"operation\": \"import/url\",\n      \"url\": \"{{ $('RenderForm Slide 1').item.json.secure_url }}\",\n      \"filename\": \"slide.png\"\n    },\n    \"fusionar-capas\": {\n      \"operation\": \"command\",\n      \"engine\": \"ffmpeg\",\n      \"command\": \"ffmpeg\",\n      \"input\": [\n        \"importar-video-reddit\",\n        \"importar-slide-1\"\n      ],\n      \"arguments\": \"-i /input/importar-video-reddit/video.mp4 -i /input/importar-slide-1/slide.png -filter_complex \\\"[0:v]scale=1080:1350:force_original_aspect_ratio=increase,crop=1080:1350,boxblur=luma_radius=35:luma_power=2[bg];[0:v]scale=1080:1350:force_original_aspect_ratio=decrease[fg];[bg][fg]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2[vid];[vid][1:v]overlay=0:0[outv]\\\" -map \\\"[outv]\\\" -map 0:a? -c:v libx264 -preset fast -profile:v main -r 30 -b:v 2500k -maxrate 2500k -bufsize 5000k -pix_fmt yuv420p -c:a aac -b:a 128k -ar 44100 -movflags +faststart -t 59 /output/video_final.mp4\",\n      \"output_format\": \"mp4\"\n    },\n    \"exportar-final\": {\n      \"operation\": \"export/url\",\n      \"input\": [\n        \"fusionar-capas\"\n      ]\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        768,
+        1296
+      ],
+      "id": "83ea386f-fa57-4cf2-a75f-96e6aab3a227",
+      "name": "CloudConvert",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "url": "=https://api.rss2json.com/v1/api.json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "rss_url",
+              "value": "={{ $('Limit').item.json.link.split('?')[0].replace(/\\/$/, '') + '.rss' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        960,
+        192
+      ],
+      "id": "490578f7-7e9d-474f-bad2-2494aa56c8ea",
+      "name": "obtener contexto"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "gemini-2.5-flash-image",
+          "mode": "id"
+        },
+        "text": "Describe la imagen lo mejor posible.",
+        "imageUrls": "={{ \"https://wsrv.nl/?url=\" + encodeURIComponent($('Limit').item.json.thumbnail.replace(/&amp;/g, '&')) }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        2096,
+        0
+      ],
+      "id": "a66d5458-3a94-4502-ba4e-6b3b747f5d8c",
+      "name": "describe image",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "openAiApi": {
+          "id": "j3bNkqE6s1cKh2hC",
+          "name": "OpenAi Naga"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ab3e1c44-9a2c-48d7-a5d2-41339a74c99e",
+              "name": "content",
+              "value": "=<image>\n{{ $json.content }}\n</image>",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        768,
+        192
+      ],
+      "id": "ad8dcac2-fc09-4937-a316-ca088f77471d",
+      "name": "imagen content"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Video Slide 1 (Con gancho) desde Github\nconst urlSlide1Video = $('GitHub slide 1').first().json.secure_url;\n\n// 2. Video Slide 2 (Crudo cortado a 58s) desde CloudConvert\nconst urlSlide2RawVideo = $('GitHub slide 2 verdadero').first().json.secure_url;\n\n// 3. Imagen Slide 3 (Explicación / Urgencia) desde Github\nconst urlSlide3Image = $('GitHub slide 2').first().json.content.download_url;\n\n// 4. Imagen Slide 4 (Cierre Vangard) fija\nconst urlSlide4Image = \"https://raw.githubusercontent.com/TU_USUARIO_GITHUB/TU_REPOSITORIO/main/cierre_vangard_definitivo.png\";\n\n// 5. Extraemos el Caption directo de DeepSeek\nconst caption = $('DeepSeek').first().json.output.caption;\n\n// 6. Armamos el paquete maestro en el orden correcto\nreturn [{\n  json: {\n    carrusel_urls: [\n      urlSlide1Video,      // Índex 0\n      urlSlide2RawVideo,   // Índex 1\n      urlSlide3Image,      // Índex 2\n      urlSlide4Image       // Índex 3\n    ],\n    post_caption: caption\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1776,
+        1280
+      ],
+      "id": "f6817824-6bf0-4736-bf53-f5adf76c52b6",
+      "name": "Empaquetador de Carrusel"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.first().json.items || [];\nlet comentariosLimpios = [];\n\n// Empezamos en el índice 1 (el 0 es el post original)\nfor (let i = 1; i < items.length; i++) {\n    let textoHTML = items[i].description || \"\";\n    \n    // Limpiamos las etiquetas HTML\n    let textoLimpio = textoHTML.replace(/<[^>]*>?/gm, '').trim();\n    \n    // FILTRO INTELIGENTE:\n    // 1. Que exista el texto\n    // 2. Que no sea un bot\n    // 3. Que no sea un simple enlace de imagen (http)\n    // 4. Que tenga más de 20 caracteres (para evitar los \"lol\", \"yes\", \"u r right\")\n    if (\n        textoLimpio && \n        !textoLimpio.includes('I am a bot') && \n        !textoLimpio.includes('AutoModerator') &&\n        !textoLimpio.includes('http') &&\n        textoLimpio.length > 20\n    ) {\n        comentariosLimpios.push(`- \"${textoLimpio}\"`);\n    }\n    \n    // Si ya logramos recolectar 5 comentarios sustanciosos, detenemos el ciclo\n    if (comentariosLimpios.length >= 5) break;\n}\n\n// Pasamos el texto limpio a la siguiente etapa\nreturn {\n    contexto_comentarios: comentariosLimpios.length > 0 \n        ? comentariosLimpios.join('\\n') \n        : \"Video generado por IA. Revisa la imagen para más contexto.\"\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1136,
+        192
+      ],
+      "id": "cb4d91aa-28e4-4255-b004-bf57a23bedac",
+      "name": "Code Comentarios"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Accedemos a la memoria persistente del flujo\nconst staticData = $getWorkflowStaticData('global');\nstaticData.videosProcesados = staticData.videosProcesados || [];\n\n// 2. Obtenemos TODOS los elementos que entran al nodo\nconst items = $input.all();\nconst itemsNuevos = [];\n\n// 3. Recorremos cada uno de los videos entrantes\nfor (const item of items) {\n    // Extraemos el ID único (guid o link)\n    // Usamos ?. para evitar errores si por alguna razón el json viene vacío\n    const postId = item.json?.guid || item.json?.link;\n\n    if (!postId) continue; // Si no hay ID, saltamos al siguiente\n\n    // 4. Verificamos si NO lo hemos procesado antes\n    if (!staticData.videosProcesados.includes(postId)) {\n        \n        // Lo anotamos en la memoria para el futuro\n        staticData.videosProcesados.push(postId);\n        \n        // Lo agregamos a la lista de videos que van a pasar\n        itemsNuevos.push(item);\n    }\n}\n\n// 5. AUMENTAMOS a 500 para evitar que videos semanales populares se olviden rápido\nif (staticData.videosProcesados.length > 500) {\n    staticData.videosProcesados = staticData.videosProcesados.slice(-500);\n}\n\n// 6. Devolvemos SOLO los items que pasaron el filtro\nreturn itemsNuevos;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1248,
+        16
+      ],
+      "id": "62863f07-3d9c-4af7-bac4-402fd602496c",
+      "name": "Filtro Anti-Repetidos"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Extraemos el array de URLs que armó el Empaquetador\nconst urls = $json.carrusel_urls;\n\n// 2. Primera validación: ¿Existe el array y tiene elementos?\nif (!Array.isArray(urls) || urls.length === 0) {\n    throw new Error(\"⛔ GUARDIA DE SEGURIDAD: El paquete viene vacío. No se encontraron URLs.\");\n}\n\n// 3. Segunda validación: ¿Hay algún impostor (null, undefined, texto roto)?\n// .some() revisa todos los elementos, sin importar si son 3 o 5.\nconst tieneErrores = urls.some(url => !url || typeof url !== 'string' || !url.startsWith('http'));\n\nif (tieneErrores) {\n    // Si hay un error, mostramos exactamente qué URLs llegaron para facilitar el diagnóstico\n    throw new Error(`⛔ GUARDIA DE SEGURIDAD: Se detectó una URL nula, inválida o rota. Publicación abortada.\\nContenido del paquete: ${JSON.stringify(urls, null, 2)}`);\n}\n\n// 4. Si todo está perfecto, dejamos pasar el JSON intacto hacia Postiz\nreturn $input.item;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1952,
+        1280
+      ],
+      "id": "b69d604e-3d67-4010-a865-81a389b48b5b",
+      "name": "Guardia de Seguridad"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://TU_URL_SATORI",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"texto\": {{ JSON.stringify($('DeepSeek').first().json.output.gancho_reel) }}, \n  \"texto_cta\": \"{{ $('DeepSeek').item.json.output.cta_reel }}🚀\"\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2944,
+        1216
+      ],
+      "id": "038468fa-58c0-4040-82f5-c2616fa236be",
+      "name": "Satori-api"
+    },
+    {
+      "parameters": {
+        "amount": "={{ Math.floor(Math.random() * (65 - 55 + 1)) + 55 }}"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2736,
+        1216
+      ],
+      "id": "b1f4e53e-1c58-427d-a1ca-d23d93bd6f4e",
+      "name": "Wait1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloudconvert.com/v2/jobs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "TU_TOKEN_CLOUDCONVERT"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"tasks\": {\n    \"importar-video-reddit\": {\n      \"operation\": \"import/url\",\n      \"url\": \"{{ $('subir video con transcript a github').item.json.secure_url }}\",\n      \"filename\": \"video.mp4\"\n    },\n    \"importar-slide-1\": {\n      \"operation\": \"import/url\",\n      \"url\": \"{{ $('NODO_POSTIZ_UPLOAD').item.json.path }}\",\n      \"filename\": \"slide.png\"\n    },\n    \"fusionar-capas\": {\n      \"operation\": \"command\",\n      \"engine\": \"ffmpeg\",\n      \"command\": \"ffmpeg\",\n      \"input\": [\n        \"importar-video-reddit\",\n        \"importar-slide-1\"\n      ],\n      \"arguments\": \"-i /input/importar-video-reddit/video.mp4 -i /input/importar-slide-1/slide.png -filter_complex \\\"[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=luma_radius=35:luma_power=2[bg];[0:v]scale=1080:1920:force_original_aspect_ratio=decrease[fg];[bg][fg]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2[vid];[vid][1:v]overlay=0:0[outv]\\\" -map \\\"[outv]\\\" -map 0:a? -c:v libx264 -preset fast -profile:v main -r 30 -b:v 2500k -maxrate 2500k -bufsize 5000k -pix_fmt yuv420p -c:a aac -b:a 128k -ar 44100 -movflags +faststart /output/video_final.mp4\",\n      \"output_format\": \"mp4\"\n    },\n    \"exportar-final\": {\n      \"operation\": \"export/url\",\n      \"input\": [\n        \"fusionar-capas\"\n      ]\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        3344,
+        1216
+      ],
+      "id": "9f59a6fa-dd01-4db4-87fa-9f837475b705",
+      "name": "CloudConvert1",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2736,
+        1392
+      ],
+      "id": "467d16e2-dfc1-4b6d-b208-63d2904bee10",
+      "name": "Wait2"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.cloudconvert.com/v2/jobs/{{ $('CloudConvert1').item.json.data.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "TU_API_TOKEN"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2944,
+        1392
+      ],
+      "id": "7e5e0855-16b6-4cfa-b4ba-182427226f51",
+      "name": "Verificar Status1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a21bf4e4-bd68-4c8b-bbd1-dd82c1bd67a0",
+              "leftValue": "={{ $json.data.status }}",
+              "rightValue": "finished",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        3136,
+        1392
+      ],
+      "id": "0ed34b3d-87d6-40f1-8338-8bb326ba5f37",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.data.tasks[0].result.files[0].url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2688,
+        1664
+      ],
+      "id": "bf9daeaf-a1ba-4542-af60-b85b245cc683",
+      "name": "descargar video"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        3104,
+        2048
+      ],
+      "id": "93aadb2e-6bd4-4467-b674-cabb6c46abbc",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "operation": "getIntegrations"
+      },
+      "type": "n8n-nodes-postiz.postiz",
+      "typeVersion": 1,
+      "position": [
+        2944,
+        2048
+      ],
+      "id": "c79a8a3d-944d-44fa-8ef2-ccddf4c30a00",
+      "name": "channel_id1",
+      "credentials": {
+        "postizApi": {
+          "id": "p7h86tTPTWtgt5dR",
+          "name": "Postiz account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "uploadFile",
+        "binaryProperty": "=data"
+      },
+      "type": "n8n-nodes-postiz.postiz",
+      "typeVersion": 1,
+      "position": [
+        2768,
+        2048
+      ],
+      "id": "40316bf3-c2a1-4941-831f-897f6bbe140e",
+      "name": "subir_video",
+      "credentials": {
+        "postizApi": {
+          "id": "p7h86tTPTWtgt5dR",
+          "name": "Postiz account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "uploadFile",
+        "binaryProperty": "=data"
+      },
+      "type": "n8n-nodes-postiz.postiz",
+      "typeVersion": 1,
+      "position": [
+        3136,
+        1216
+      ],
+      "id": "af08796b-597f-4f31-aeef-3325084accb3",
+      "name": "NODO_POSTIZ_UPLOAD",
+      "credentials": {
+        "postizApi": {
+          "id": "p7h86tTPTWtgt5dR",
+          "name": "Postiz account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Este flujo sube el reel a instagram y facebook\n**Se sube el carrusel de video/imagenes a instagram y 1 hora luego se sube el reel a instagram y tambien a facebook ",
+        "height": 1152,
+        "width": 1504,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2624,
+        1104
+      ],
+      "id": "8b312ae1-651a-4eae-8ae9-819f96280116",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "owner": {
+          "__rl": true,
+          "value": "tu_id",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "tu_repo",
+          "mode": "name"
+        },
+        "filePath": "=carrusel/slide_{{ $json.requestId }}_{{ $execution.id }}.png",
+        "binaryData": true,
+        "commitMessage": "Generado por Imejis"
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        2176,
+        1040
+      ],
+      "id": "25838adf-2c0a-4e37-a849-9db674e60e6f",
+      "name": "GitHub slide 2",
+      "credentials": {
+        "githubApi": {
+          "id": "bHuLPeg7BlL3QwKd",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Verificar Status').item.json.data.tasks[0].result.files[0].url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1424,
+        1280
+      ],
+      "id": "de3c23d5-8610-47d6-8e16-73eb67587a4f",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "date": "={{ $now.toFormat('yyyy-MM-dd HH:mm:ss') }}",
+        "posts": {
+          "post": [
+            {
+              "integrationId": "={{ $json.data[2].id }}",
+              "settings": {
+                "setting": [
+                  {
+                    "key": "__type",
+                    "stringValue": "facebook"
+                  }
+                ]
+              },
+              "value": {
+                "contentItem": [
+                  {
+                    "content": "={{ $('DeepSeek').item.json.output.caption }}",
+                    "image": {
+                      "imageItem": [
+                        {
+                          "id": "={{ $('subir_video').item.json.id }}",
+                          "path": "={{ $('subir_video').item.json.path }}"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-postiz.postiz",
+      "typeVersion": 1,
+      "position": [
+        3280,
+        2048
+      ],
+      "id": "9856961f-171c-48db-accc-cd65846ec9b1",
+      "name": "Postiz fb reel",
+      "credentials": {
+        "postizApi": {
+          "id": "p7h86tTPTWtgt5dR",
+          "name": "Postiz account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://open.tiktokapis.com/v2/post/publish/video/init/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json; charset=UTF-8"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"post_info\": {\n        \"title\": {{ JSON.stringify($('DeepSeek').first().json.output.caption || \"Mi video desde n8n\") }},\n        \"privacy_level\": \"SELF_ONLY\",\n        \"disable_comment\": false,\n        \"disable_duet\": false,\n        \"disable_stitch\": false\n    },\n    \"source_info\": {\n        \"source\": \"FILE_UPLOAD\",\n        \"video_size\": {{ $('descargar video').first().json.data.tasks[0].result.files[0].size }},\n        \"chunk_size\": {{ $('descargar video').first().json.data.tasks[0].result.files[0].size }},\n        \"total_chunk_count\": 1\n    }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        3600,
+        1856
+      ],
+      "id": "bbcdc752-3a29-4d80-9aff-994ab70dc510",
+      "name": "TikTok Init1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ZdgkL9qjYwC5LmAx",
+          "name": "TikTok"
+        },
+        "oAuth2Api": {
+          "id": "3h7CNrVTRN643LZE",
+          "name": "Unnamed credential"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ $json.data.upload_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "video/mp4"
+            },
+            {
+              "name": "Content-Length",
+              "value": "={{ $('descargar video').item.json.data.tasks[0].result.files[0].size }}"
+            },
+            {
+              "name": "Content-Range",
+              "value": "=bytes 0-={{ $('descargar video').item.json.data.tasks[0].result.files[0].size - 1 }}/{{ $('descargar video').item.json.data.tasks[0].result.files[0].size }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        3760,
+        1856
+      ],
+      "id": "f1877647-7719-44f0-b426-de38ed77d539",
+      "name": "TikTok Upload1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://TU_SATORI",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"texto\": {{ JSON.stringify($('DeepSeek').first().json.output.gancho_reel) }}, \n  \"texto_cta\": \"{{ $('DeepSeek').first().json.output.cta_reel_tiktok }}🚀\"\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2896,
+        656
+      ],
+      "id": "6142cc21-2c73-4545-a63d-af2559a16d27",
+      "name": "Satori TikTok"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloudconvert.com/v2/jobs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "TU_TOKEN_CLOUDCONVERT"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"tasks\": {\n    \"importar-video-reddit\": {\n      \"operation\": \"import/url\",\n      \"url\": \"{{ $('subir video con transcript a github').item.json.secure_url }}\",\n      \"filename\": \"video.mp4\"\n    },\n    \"importar-slide-1\": {\n      \"operation\": \"import/url\",\n      \"url\": \"{{ $('NODO_POSTIZ_UPLOAD_TIKTOK').item.json.path }}\",\n      \"filename\": \"slide.png\"\n    },\n    \"fusionar-capas\": {\n      \"operation\": \"command\",\n      \"engine\": \"ffmpeg\",\n      \"command\": \"ffmpeg\",\n      \"input\": [\n        \"importar-video-reddit\",\n        \"importar-slide-1\"\n      ],\n      \"arguments\": \"-i /input/importar-video-reddit/video.mp4 -i /input/importar-slide-1/slide.png -filter_complex \\\"[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=luma_radius=35:luma_power=2[bg];[0:v]scale=1080:1920:force_original_aspect_ratio=decrease[fg];[bg][fg]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2[vid];[vid][1:v]overlay=0:0[outv]\\\" -map \\\"[outv]\\\" -map 0:a? -c:v libx264 -preset fast -profile:v main -r 30 -b:v 2500k -maxrate 2500k -bufsize 5000k -pix_fmt yuv420p -c:a aac -b:a 128k -ar 44100 -movflags +faststart /output/video_final.mp4\",\n      \"output_format\": \"mp4\"\n    },\n    \"exportar-final\": {\n      \"operation\": \"export/url\",\n      \"input\": [\n        \"fusionar-capas\"\n      ]\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        3328,
+        656
+      ],
+      "id": "13824a3f-c97e-44e7-b186-8753f29f4c8f",
+      "name": "CloudConvert TikTok",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "operation": "uploadFile",
+        "binaryProperty": "=data"
+      },
+      "type": "n8n-nodes-postiz.postiz",
+      "typeVersion": 1,
+      "position": [
+        3104,
+        656
+      ],
+      "id": "590565c5-77b4-4077-8b07-6c767dc89c06",
+      "name": "NODO_POSTIZ_UPLOAD_TIKTOK",
+      "credentials": {
+        "postizApi": {
+          "id": "p7h86tTPTWtgt5dR",
+          "name": "Postiz account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": "=3",
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2688,
+        656
+      ],
+      "id": "2b689143-54d3-4d19-ab87-8857d55f6134",
+      "name": "Wait5"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2688,
+        864
+      ],
+      "id": "3ae66a2b-9068-4db2-becf-8c72ad5bf333",
+      "name": "Wait6"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.cloudconvert.com/v2/jobs/{{ $('CloudConvert TikTok').item.json.data.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "TU_TOKEN"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2912,
+        864
+      ],
+      "id": "1501c206-a745-430d-a558-a34b42bf8f8e",
+      "name": "Verificar Status2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a21bf4e4-bd68-4c8b-bbd1-dd82c1bd67a0",
+              "leftValue": "={{ $json.data.status }}",
+              "rightValue": "finished",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        3136,
+        864
+      ],
+      "id": "4d01d458-8b81-4741-97b2-98082ecdfd97",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "content": "## Este flujo sube el reel a telegram para subir a tiktok\n",
+        "height": 480,
+        "width": 1120,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2608,
+        592
+      ],
+      "id": "55251682-6b82-4895-91ab-330ec27eb930",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "amount": "={{ Math.floor(Math.random() * 60) }}",
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        688,
+        16
+      ],
+      "id": "8bfd7231-62bf-425d-b771-f5d2bd4086be",
+      "name": "Wait7",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "triggerAtHour": 21
+            },
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                6,
+                0
+              ],
+              "triggerAtHour": 21
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        480,
+        16
+      ],
+      "id": "8b48af90-d513-4fbb-80ad-03a8a1bb63c6",
+      "name": "Schedule Trigger1"
+    },
+    {
+      "parameters": {
+        "amount": "=2",
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2656,
+        112
+      ],
+      "id": "75c783cd-1e85-4f82-bfbf-751f3dfa8d2e",
+      "name": "Wait8"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2704,
+        320
+      ],
+      "id": "90262272-9e66-4081-ab6a-31e2acd40786",
+      "name": "Wait9"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.cloudconvert.com/v2/jobs/{{ $('CloudConvert  Youtube').item.json.data.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "TU_TOKEN"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2928,
+        320
+      ],
+      "id": "fb5321bd-56e6-4dd1-9ed9-0b84d95daf84",
+      "name": "Verificar Status3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a21bf4e4-bd68-4c8b-bbd1-dd82c1bd67a0",
+              "leftValue": "={{ $json.data.status }}",
+              "rightValue": "finished",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        3152,
+        320
+      ],
+      "id": "46a680b0-1ff6-4357-810d-8f098cd17e09",
+      "name": "If4"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('If4').item.json.data.tasks[0].result.files[0].url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        3776,
+        288
+      ],
+      "id": "ec0c65e9-623d-4f5a-b5ac-6863356280f3",
+      "name": "descargar video2"
+    },
+    {
+      "parameters": {
+        "resource": "video",
+        "operation": "upload",
+        "title": "={{ $('DeepSeek').item.json.output.titulo_youtube }} #Shorts",
+        "regionCode": "MX",
+        "categoryId": "=28",
+        "options": {
+          "description": "={{ $('DeepSeek').item.json.output.caption_youtube }}",
+          "notifySubscribers": false,
+          "tags": "inteligencia artificial, automatizacion de negocios, n8n, make, zapier, chatgpt, openai, deepseek, automatizacion con ia, negocios digitales, productividad, workflows automatizados, ia para empresas, tutorial de ia, satori, cloudconvert"
+        }
+      },
+      "type": "n8n-nodes-base.youTube",
+      "typeVersion": 1,
+      "position": [
+        3952,
+        288
+      ],
+      "id": "b92edffc-dad6-4ec5-b00a-bc0a3df48111",
+      "name": "Upload a video2",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "youTubeOAuth2Api": {
+          "id": "4PQcfPYqjAHwCQWa",
+          "name": "YouTube account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Youtube\n**Double click** to edit me. [Guide](https://docs.n8n.io/workflows/components/sticky-notes/)",
+        "height": 480,
+        "width": 1552
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2608,
+        48
+      ],
+      "id": "c6e74151-f756-4e1b-ad42-e9fb27e23ad1",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://TU_URL_SATORI",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"texto\": {{ JSON.stringify($('DeepSeek').first().json.output.gancho_reel) }}, \n  \"texto_cta\": \"{{ $('DeepSeek').first().json.output.texto_cta_youtube }}🚀\"\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2912,
+        112
+      ],
+      "id": "55d367d5-5e28-44c3-a175-db96c3985172",
+      "name": "Satori Youtube"
+    },
+    {
+      "parameters": {
+        "operation": "uploadFile",
+        "binaryProperty": "=data"
+      },
+      "type": "n8n-nodes-postiz.postiz",
+      "typeVersion": 1,
+      "position": [
+        3120,
+        112
+      ],
+      "id": "09439059-0e67-4e16-8e43-3c2865c42861",
+      "name": "NODO_POSTIZ_UPLOAD_YOUTUBE",
+      "credentials": {
+        "postizApi": {
+          "id": "p7h86tTPTWtgt5dR",
+          "name": "Postiz account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloudconvert.com/v2/jobs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "TU_TOKEN_CLOUDCONVERT"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"tasks\": {\n    \"importar-video-reddit\": {\n      \"operation\": \"import/url\",\n      \"url\": \"{{ $('subir video con transcript a github').item.json.secure_url }}\",\n      \"filename\": \"video.mp4\"\n    },\n    \"importar-slide-1\": {\n      \"operation\": \"import/url\",\n      \"url\": \"{{ $('NODO_POSTIZ_UPLOAD_YOUTUBE').item.json.path }}\",\n      \"filename\": \"slide.png\"\n    },\n    \"fusionar-capas\": {\n      \"operation\": \"command\",\n      \"engine\": \"ffmpeg\",\n      \"command\": \"ffmpeg\",\n      \"input\": [\n        \"importar-video-reddit\",\n        \"importar-slide-1\"\n      ],\n      \"arguments\": \"-i /input/importar-video-reddit/video.mp4 -i /input/importar-slide-1/slide.png -filter_complex \\\"[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=luma_radius=35:luma_power=2[bg];[0:v]scale=1080:1920:force_original_aspect_ratio=decrease[fg];[bg][fg]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2[vid];[vid][1:v]overlay=0:0[outv]\\\" -map \\\"[outv]\\\" -map 0:a? -c:v libx264 -preset fast -profile:v main -r 30 -b:v 2500k -maxrate 2500k -bufsize 5000k -pix_fmt yuv420p -c:a aac -b:a 128k -ar 44100 -movflags +faststart -t 58 /output/video_final.mp4\",\n      \"output_format\": \"mp4\"\n    },\n    \"exportar-final\": {\n      \"operation\": \"export/url\",\n      \"input\": [\n        \"fusionar-capas\"\n      ]\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        3344,
+        112
+      ],
+      "id": "e4c176bd-c78b-4651-bd4e-592bd964a1b9",
+      "name": "CloudConvert  Youtube",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "command": "=ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 \"{{ $('Verificar Status3').item.json.data.tasks[0].result.files[0].url }}\""
+      },
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        3360,
+        304
+      ],
+      "id": "5d4a65d3-f477-4a4b-b146-75b6b6b649ad",
+      "name": "Duracion ffprobe"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "b4c5d6e7-890a-4b5c-9d8e-f1a2b3c4d5e6",
+              "leftValue": "={{ parseFloat($json.stdout) }}",
+              "rightValue": 59,
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        3552,
+        304
+      ],
+      "id": "129e1b7c-7228-4003-ae56-635a7d4057ab",
+      "name": "Maximo 59s1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.id }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "name": "IF Video OK",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        672,
+        1504
+      ],
+      "id": "0bea66ac-9667-4838-a8d5-bc3ff6d08714"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $runIndex }}",
+              "value2": 3
+            }
+          ]
+        }
+      },
+      "name": "Retry Video?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        672,
+        1712
+      ],
+      "id": "d6430766-5f3b-4256-8216-39a7b6c92ff8"
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "name": "Wait Video",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        464,
+        1712
+      ],
+      "id": "5e708d84-8b30-496f-ab81-0d9846f19fe5"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.id }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "name": "IF Img1 OK",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1904,
+        1504
+      ],
+      "id": "bd555d95-7f33-4e99-ad7b-995972d2e3aa"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $runIndex }}",
+              "value2": 3
+            }
+          ]
+        }
+      },
+      "name": "Retry Img1?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1904,
+        1712
+      ],
+      "id": "5647c08e-841b-4192-8bbb-00be3b1b0050"
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "name": "Wait Img1",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1712,
+        1712
+      ],
+      "id": "0db02326-76a5-4d65-ab69-5df3ec6c52f6"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.id }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "name": "IF Img2 OK",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        2336,
+        1504
+      ],
+      "id": "d202e2eb-8be4-4d3b-ae32-3c097404fe4f"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $runIndex }}",
+              "value2": 3
+            }
+          ]
+        }
+      },
+      "name": "Retry Img2?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        2352,
+        1712
+      ],
+      "id": "88d42882-b8d0-448b-8b94-30bec95a5339"
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "name": "Wait Img2",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2160,
+        1712
+      ],
+      "id": "bb500a30-429a-4af3-b7a6-4b7c10ac558f"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.id }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "name": "IF Carrusel OK",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1664,
+        1952
+      ],
+      "id": "961595c0-88a1-4bbe-aae8-60b967f94f2b"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $runIndex }}",
+              "value2": 3
+            }
+          ]
+        }
+      },
+      "name": "Retry Carrusel?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1648,
+        2160
+      ],
+      "id": "dccb53e7-b890-4d02-a585-c4e46157e353"
+    },
+    {
+      "parameters": {
+        "amount": "={{ Math.floor(Math.random() * (180 - 60 + 1)) + 60 }}"
+      },
+      "name": "Wait Carrusel",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1440,
+        2160
+      ],
+      "id": "6bec96e8-93c6-4789-b73e-544eb0ce40c6"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "TU_IG_ACCOUNT_ID",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "creation_id",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "name": "access_token",
+              "value": "TU_IG_TOKEN"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2128,
+        1952
+      ],
+      "id": "7c58a461-4d62-44d1-b645-065d92bc1860",
+      "name": "Publicar Carrusel IG",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.id }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "name": "IF Publicar OK",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        2320,
+        1952
+      ],
+      "id": "706be1b9-3227-43e7-92db-29b94bc446cd"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $runIndex }}",
+              "value2": 3
+            }
+          ]
+        }
+      },
+      "name": "Retry Publicar?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        2320,
+        2160
+      ],
+      "id": "8b7d8506-549f-4457-ab58-660c0f348464"
+    },
+    {
+      "parameters": {
+        "amount": "={{ Math.floor(Math.random() * (240 - 180 + 1)) + 180 }}"
+      },
+      "name": "Wait Publicar",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2128,
+        2160
+      ],
+      "id": "3a2b6137-883c-4570-8212-feb7f5304da5"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "TU_IG_ACCOUNT_ID",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "media_type",
+              "value": "VIDEO"
+            },
+            {
+              "name": "video_url",
+              "value": "={{ $('Empaquetador de Carrusel').item.json.carrusel_urls[0] }}"
+            },
+            {
+              "name": "is_carousel_item",
+              "value": "true"
+            },
+            {
+              "name": "access_token",
+              "value": "TU_IG_TOKEN"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        464,
+        1504
+      ],
+      "id": "4304082f-3f51-42f7-a494-a1b13122303c",
+      "name": "Subir Video IG1",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "TU_IG_ACCOUNT_ID",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "image_url",
+              "value": "={{ $('Empaquetador de Carrusel').item.json.carrusel_urls[2] }}"
+            },
+            {
+              "name": "is_carousel_item",
+              "value": "true"
+            },
+            {
+              "name": "access_token",
+              "value": "TU_IG_TOKEN"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1712,
+        1504
+      ],
+      "id": "763f43c1-0842-4993-95aa-40ac96ab4f4d",
+      "name": "Subir Imagen 1 IG1",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "TU_IG_ACCOUNT_ID",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "image_url",
+              "value": "={{ $('Empaquetador de Carrusel').item.json.carrusel_urls[3] }}"
+            },
+            {
+              "name": "is_carousel_item",
+              "value": "true"
+            },
+            {
+              "name": "access_token",
+              "value": "TU_IG_TOKEN"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2160,
+        1504
+      ],
+      "id": "28d86548-9383-4f03-b2bb-4df97043563c",
+      "name": "Subir Imagen 2 IG1",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "TU_IG_ACCOUNT_ID",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "media_type",
+              "value": "CAROUSEL"
+            },
+            {
+              "name": "children",
+              "value": "={{ $('Subir Video IG1').item.json.id }},{{ $('Subir Video2 IG').item.json.id }},{{ $('Subir Imagen 1 IG1').item.json.id }},{{ $('Subir Imagen 2 IG1').item.json.id }}"
+            },
+            {
+              "name": "caption",
+              "value": "={{ $('Empaquetador de Carrusel').item.json.post_caption }}"
+            },
+            {
+              "name": "access_token",
+              "value": "TU_IG_TOKEN"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1440,
+        1952
+      ],
+      "id": "b1171f76-78a2-46f6-8b1e-eef89b3f05f5",
+      "name": "Armar Carrusel1",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "amount": 2,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1888,
+        1936
+      ],
+      "id": "d2384363-d291-4153-85d6-c1ed7d3f9506",
+      "name": "Wait11"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "TU_IG_ACCOUNT_ID",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "media_type",
+              "value": "REELS"
+            },
+            {
+              "name": "video_url",
+              "value": "={{ $json.secure_url }}"
+            },
+            {
+              "name": "caption",
+              "value": "={{ $('DeepSeek').item.json.output.caption }}"
+            },
+            {
+              "name": "access_token",
+              "value": "TU_IG_TOKEN"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        3136,
+        1632
+      ],
+      "id": "de5a772e-d95c-4614-8055-c4301d43db87",
+      "name": "Cargar Reel",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.id }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "name": "IF Carga OK",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        3344,
+        1632
+      ],
+      "id": "5f1390a8-d9b5-4a2d-a574-61275cd8a224"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $runIndex }}",
+              "value2": 3
+            }
+          ]
+        }
+      },
+      "name": "Retry Carga?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        3344,
+        1840
+      ],
+      "id": "86a03ad8-c9e6-4288-a50d-cbc0fe12c977"
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "name": "Wait Carga",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3136,
+        1840
+      ],
+      "id": "df79157f-e711-4799-9a8f-cae085bb46ca"
+    },
+    {
+      "parameters": {
+        "amount": 3,
+        "unit": "minutes"
+      },
+      "name": "Wait Procesamiento Reel",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3376,
+        1440
+      ],
+      "id": "acfc5c27-65dd-48de-9d25-4f8c35844df5",
+      "notesInFlow": true,
+      "notes": "IG tarda en procesar el video"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "TU_IG_ACCOUNT_ID",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "creation_id",
+              "value": "={{ $('Cargar Reel').item.json.id }}"
+            },
+            {
+              "name": "access_token",
+              "value": "TU_IG_TOKEN"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        3616,
+        1440
+      ],
+      "id": "ea60cbf6-0658-40d1-a5ec-ec4014d1f18d",
+      "name": "Publicar Reel",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.id }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "name": "IF Publicar OK1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        3824,
+        1440
+      ],
+      "id": "5e274076-be4e-417d-8173-b63447f40b88"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $runIndex }}",
+              "value2": 3
+            }
+          ]
+        }
+      },
+      "name": "Retry Publicar?1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        3824,
+        1648
+      ],
+      "id": "39493542-eb96-467b-93cb-f241b8b7b178"
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "name": "Wait Publicar1",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3616,
+        1648
+      ],
+      "id": "5f4022e0-0cdc-4ab7-855d-df33f774f80b"
+    },
+    {
+      "parameters": {
+        "url": "=https://graph.facebook.com/v25.0/{{ $('Subir Video IG1').item.json.id }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "fields",
+              "value": "status_code"
+            },
+            {
+              "name": "access_token",
+              "value": "TU_IG_TOKEN"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        288,
+        1952
+      ],
+      "id": "86faa332-f041-4746-a996-c06b285b06fb",
+      "name": "Verificar Estado Video",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        640,
+        2032
+      ],
+      "id": "9833db8a-332a-49fb-9df7-18399a7b2b85",
+      "name": "Esperar 1 min y revisar"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.status_code }}",
+                    "rightValue": "FINISHED",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "8df4065c-8c54-4101-b0aa-612db98b1e4d"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "finished"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "cdd1963f-77b4-4d1e-9967-0753393548e2",
+                    "leftValue": "={{ $json.status_code }}",
+                    "rightValue": "IN_PROGRESS",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "in progress"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "a81ecdde-f578-4cee-8b24-c8d89f324892",
+                    "leftValue": "={{ $json.status_code }}",
+                    "rightValue": "ERROR",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "error"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        464,
+        1936
+      ],
+      "id": "192f9190-4f1b-43d2-a2ce-8a61e320405f",
+      "name": "Switch"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        496,
+        2240
+      ],
+      "id": "21563cf0-61da-4ad7-a1cc-649af5be2c88",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "TU_IG_ACCOUNT_ID",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "media_type",
+              "value": "STORIES"
+            },
+            {
+              "name": "video_url",
+              "value": "={{ $('GitHub IG Storie').item.json.secure_url }}"
+            },
+            {
+              "name": "access_token",
+              "value": "TU_IG_TOKEN"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        4256,
+        1152
+      ],
+      "id": "3301ed11-c104-46a8-bf0d-e8ebc2a2975c",
+      "name": "SUBIR STORIE"
+    },
+    {
+      "parameters": {
+        "amount": 30,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3936,
+        688
+      ],
+      "id": "4056906c-637a-4049-b6a6-f8615e2d5b89",
+      "name": "Wait4"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3920,
+        896
+      ],
+      "id": "245c82e8-6119-4820-810b-28197b5ed474",
+      "name": "Wait12"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.cloudconvert.com/v2/jobs/{{ $('CloudConvert IG Storie').item.json.data.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "TU_TOKEN"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        4144,
+        896
+      ],
+      "id": "bcff7518-f9ad-4b32-9ccf-ef039283a20f",
+      "name": "Verificar Status4"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a21bf4e4-bd68-4c8b-bbd1-dd82c1bd67a0",
+              "leftValue": "={{ $json.data.status }}",
+              "rightValue": "finished",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        4368,
+        896
+      ],
+      "id": "e3c81053-c231-4b4c-ba1a-c587ed885b66",
+      "name": "If5"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.data.tasks[0].result.files[0].url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        4592,
+        880
+      ],
+      "id": "cbdedd40-393d-4924-abb8-0d28ac24cbe7",
+      "name": "descargar video3"
+    },
+    {
+      "parameters": {
+        "content": "## IG Storie\n**Double click** to edit me. [Guide](https://docs.n8n.io/workflows/components/sticky-notes/)",
+        "height": 448,
+        "width": 960,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3776,
+        624
+      ],
+      "id": "dbe4c5ed-2ae6-43d1-8c32-73124d61fd92",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "operation": "uploadFile",
+        "binaryProperty": "=data"
+      },
+      "type": "n8n-nodes-postiz.postiz",
+      "typeVersion": 1,
+      "position": [
+        4336,
+        688
+      ],
+      "id": "ace6d6a1-020f-4ecb-99dd-2dbcb8753871",
+      "name": "NODO_POSTIZ_UPLOAD_IG_STORIE",
+      "credentials": {
+        "postizApi": {
+          "id": "p7h86tTPTWtgt5dR",
+          "name": "Postiz account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://graph.facebook.com/v25.0/{{ $('SUBIR STORIE').item.json.id }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "fields",
+              "value": "status_code"
+            },
+            {
+              "name": "access_token",
+              "value": "TU_IG_TOKEN"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        4512,
+        1136
+      ],
+      "id": "aa11b866-21e0-46a7-b1f3-4a5c5d886480",
+      "name": "Verificar Estado Video1",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        4864,
+        1216
+      ],
+      "id": "bb9b624a-b1ab-4c06-a5aa-7141da2a224b",
+      "name": "Esperar 1 min y revisar1"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.status_code }}",
+                    "rightValue": "FINISHED",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "8df4065c-8c54-4101-b0aa-612db98b1e4d"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "finished"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "cdd1963f-77b4-4d1e-9967-0753393548e2",
+                    "leftValue": "={{ $json.status_code }}",
+                    "rightValue": "IN_PROGRESS",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "in progress"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "a81ecdde-f578-4cee-8b24-c8d89f324892",
+                    "leftValue": "={{ $json.status_code }}",
+                    "rightValue": "ERROR",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "error"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        4688,
+        1120
+      ],
+      "id": "16f71c0e-acef-41dc-881e-bf57610bf75c",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        4720,
+        1424
+      ],
+      "id": "a17c9125-8d81-4a77-9011-5cbd80fe8dc0",
+      "name": "No Operation, do nothing1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloudconvert.com/v2/jobs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "TU_TOKEN_CLOUDCONVERT"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"tasks\": {\n    \"importar-video-reddit\": {\n      \"operation\": \"import/url\",\n      \"url\": \"{{ $('subir video con transcript a github').item.json.secure_url }}\",\n      \"filename\": \"video.mp4\"\n    },\n    \"importar-slide-1\": {\n      \"operation\": \"import/url\",\n      \"url\": \"{{ $('NODO_POSTIZ_UPLOAD_IG_STORIE').item.json.path }}\",\n      \"filename\": \"slide.png\"\n    },\n    \"fusionar-capas\": {\n      \"operation\": \"command\",\n      \"engine\": \"ffmpeg\",\n      \"command\": \"ffmpeg\",\n      \"input\": [\n        \"importar-video-reddit\",\n        \"importar-slide-1\"\n      ],\n      \"arguments\": \"-i /input/importar-video-reddit/video.mp4 -i /input/importar-slide-1/slide.png -filter_complex \\\"[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=luma_radius=35:luma_power=2[bg];[0:v]scale=1080:1920:force_original_aspect_ratio=decrease[fg];[bg][fg]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2[vid];[vid][1:v]overlay=0:0[outv]\\\" -map \\\"[outv]\\\" -map 0:a? -c:v libx264 -preset fast -profile:v main -r 30 -b:v 2500k -maxrate 2500k -bufsize 5000k -pix_fmt yuv420p -c:a aac -b:a 128k -ar 44100 -movflags +faststart -t 58 /output/video_final.mp4\",\n      \"output_format\": \"mp4\"\n    },\n    \"exportar-final\": {\n      \"operation\": \"export/url\",\n      \"input\": [\n        \"fusionar-capas\"\n      ]\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        4560,
+        688
+      ],
+      "id": "fd5f5ef6-0b13-4316-b20b-2b9583c3df6e",
+      "name": "CloudConvert IG Storie",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.id }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "name": "IF Publicar OK2",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        4688,
+        1616
+      ],
+      "id": "4b353a3f-fa64-4fd6-9d2b-392b14cbfd05"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $runIndex }}",
+              "value2": 3
+            }
+          ]
+        }
+      },
+      "name": "Retry Publicar?2",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        4688,
+        1824
+      ],
+      "id": "a8d11e29-10c3-4cb6-bc2b-2c36a8f0ff21"
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "name": "Wait Publicar2",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        4480,
+        1824
+      ],
+      "id": "eb762118-51e5-44fc-acd2-606178364f1e"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "TU_IG_ACCOUNT_ID",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "creation_id",
+              "value": "={{ $('SUBIR STORIE').item.json.id }}"
+            },
+            {
+              "name": "access_token",
+              "value": "TU_IG_TOKEN"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        4480,
+        1616
+      ],
+      "id": "6d23f09e-78bf-4575-bd72-859c418e9b24",
+      "name": "Publicar Storie",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "height": 1424,
+        "width": 1008,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        4160,
+        624
+      ],
+      "id": "5c6a6e40-5e16-49e6-a1f6-3b24516dace8",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloudconvert.com/v2/jobs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "TU_TOKEN_CLOUDCONVERT"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"tasks\": {\n    \"importar-video\": {\n      \"operation\": \"import/url\",\n      \"url\": \"{{ $('HTML').item.json.enlace_mp4 }}\",\n      \"filename\": \"video.mp4\"\n    },\n    \"importar-srt\": {\n      \"operation\": \"import/raw\",\n      \"file\": {{ JSON.stringify($('DeepSeek Traductor').item.json.text.replace(/```srt|```/gi, '').trim()) }}, \n      \"filename\": \"subs.srt\"\n    },\n    \"quemar-subtitulos\": {\n      \"operation\": \"command\",\n      \"engine\": \"ffmpeg\",\n      \"command\": \"ffmpeg\",\n      \"input\":[\n        \"importar-video\",\n        \"importar-srt\"\n      ],\n      \"arguments\": \"-i /input/importar-video/video.mp4 -vf \\\"subtitles=/input/importar-srt/subs.srt:force_style='Fontname=Arial,Bold=1,Fontsize=8,PrimaryColour=&H00000000,OutlineColour=&H0000FFFF,BackColour=&H0000FFFF,BorderStyle=3,Outline=2,Shadow=0,Alignment=10'\\\" -c:a copy -c:v libx264 -preset fast -profile:v main -pix_fmt yuv420p /output/video_final.mp4\",\n      \"output_format\": \"mp4\"\n    },\n    \"exportar-final\": {\n      \"operation\": \"export/url\",\n      \"input\":[\n        \"quemar-subtitulos\"\n      ]\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1376,
+        672
+      ],
+      "id": "94dd63db-201f-42a8-b9b6-636fbaba3b97",
+      "name": "CloudConvert  PEGAR .SRT A VIDEO",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1584,
+        672
+      ],
+      "id": "09d25d12-aeed-406b-8e30-550a6ebf42f6",
+      "name": "Wait10"
+    },
+    {
+      "parameters": {
+        "model": "deepseek-reasoner",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        1168,
+        816
+      ],
+      "id": "eac4533a-5746-4138-8ae3-0e1eaa84b9a8",
+      "name": "DeepSeek Chat Model1",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "NTDyXAq9jm6H9TCS",
+          "name": "DeepSeek account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "==Eres un experto Maestro en Transcreación y Localización Audiovisual para cine, doblaje y redes sociales virales (TikTok, Reels, Shorts). \nTu tarea es traducir y ADAPTAR el siguiente archivo SRT del inglés al español neutro latinoamericano.\n\nREGLAS DE TRANSCREACIÓN (CONTEXTO, HUMOR Y CULTURA):\n1. PROHIBIDO hacer traducciones literales. No eres un traductor automático, eres un adaptador de guiones.\n2. ADAPTACIÓN DE CHISTES Y REFERENCIAS: Si encuentras chistes, juegos de palabras, modismos (idioms) o referencias culturales muy de Estados Unidos que no tengan sentido en español, NO los traduzcas literalmente. Tu deber es cambiarlos por una frase, chiste o referencia equivalente que mantenga la misma gracia, sarcasmo o impacto en español neutro (Exactamente como lo hacen los estudios de doblaje en series animadas o películas de comedia).\n3. NATURALIDAD: El diálogo debe sonar fluido, orgánico y callejero/real cuando el contexto lo amerite. \n- EJEMPLO 1 (Literal vs Adaptado): \"I'm not going to be polite anymore\" -> SÍ: \"Ya me cansé de ser educado\" o \"Se acabó la cortesía\".\n- EJEMPLO 2 (Modismos/Humor): \"He kicked the bucket\" -> NO: \"Él pateó el balde\". SÍ: \"Estiró la pata\" o \"Se nos fue\".\n\nREGLAS DE FORMATO Y TIEMPO (REGLA DE ORO E INQUEBRANTABLE):\n1. NO alteres bajo ninguna circunstancia los números de secuencia.\n2. NO alteres ni un solo carácter de las marcas de tiempo (00:00:00,000 --> 00:00:00,000). \n3. Mantén los mismos saltos de línea entre un bloque y otro.\n4. LÍMITE DE LECTURA: Aunque adaptes los chistes, las frases en español deben mantener una longitud similar al inglés para que el espectador tenga tiempo de leerlas en pantalla. No escribas testamentos.\n\nINSTRUCCIÓN DE SALIDA:\nDevuelve ÚNICA Y EXCLUSIVAMENTE el texto del archivo SRT en bruto. No agregues saludos, explicaciones de los chistes, no uses bloques de código Markdown (```), ni lo envuelvas en formato JSON. Solo el texto listo para ser guardado como un archivo .srt.\n\nAquí tienes el SRT: \n\n{{ $('¿Tiene Diálogos?').item.json.result.transcription.subtitles[0].subtitles }}",
+        "needsFallback": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        1088,
+        672
+      ],
+      "id": "87b9d9ef-5a6b-4d88-85d3-32858184c34e",
+      "name": "DeepSeek Traductor"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloudconvert.com/v2/jobs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "TU_TOKEN_CLOUDCONVERT"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"tasks\": {\n    \"importar-video\": {\n      \"operation\": \"import/url\",\n      \"url\": \"{{ $('HTML').item.json.enlace_mp4 }}\"\n    },\n    \"extraer-audio\": {\n      \"operation\": \"convert\",\n      \"input\": \"importar-video\",\n      \"output_format\": \"mp3\",\n      \"audio_codec\": \"mp3\",\n      \"audio_bitrate\": \"128\"\n    },\n    \"exportar-final\": {\n      \"operation\": \"export/url\",\n      \"input\": [\n        \"extraer-audio\"\n      ]\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1616,
+        464
+      ],
+      "id": "a6b53a3a-2d89-46aa-b709-fe1154cb7747",
+      "name": "CloudConvert VIDEO A AUDIO"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a21bf4e4-bd68-4c8b-bbd1-dd82c1bd67a0",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "done",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        688,
+        784
+      ],
+      "id": "54a06c6f-920c-47e7-958e-3402543a6ef0",
+      "name": "If6"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.gladia.io/v2/transcription/{{ $('Iniciar Transcripcion Gladia').item.json.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-gladia-key",
+              "value": "TU_TOKEN_API"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        512,
+        784
+      ],
+      "id": "536045fa-427c-4f93-a114-6085ee0ef378",
+      "name": "Verificar Status de Gladia (Nodo HTTP Request)"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.gladia.io/v2/transcription/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-gladia-key",
+              "value": "TU_TOKEN_API"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"audio_url\": \"{{ $('Verificar Status5').first().json.data.tasks.find(t => t.name === 'exportar-final').result.files[0].url }}\",\n  \"language\": \"en\",\n  \"subtitles\": true,\n  \"subtitles_config\": {\n    \"formats\": [\"srt\"]\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        144,
+        784
+      ],
+      "id": "cd19afc3-87c8-40fb-824f-e76397b9384c",
+      "name": "Iniciar Transcripcion Gladia",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gemini-3.1-pro-preview",
+          "mode": "list",
+          "cachedResultName": "gemini-3.1-pro-preview"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1088,
+        800
+      ],
+      "id": "4d37f6c1-4740-4858-9163-fd59b1750a17",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "j3bNkqE6s1cKh2hC",
+          "name": "OpenAi Naga"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.data.tasks.find(t => t.name === 'exportar-final').result.files[0].url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2112,
+        656
+      ],
+      "id": "64583d5d-edc9-4ea1-8ec2-35499892a421",
+      "name": "DESCARGAR VIDEO CON SRT"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1888,
+        464
+      ],
+      "id": "8636d077-186d-4921-bb97-60cc1c993e0a",
+      "name": "Wait13"    },
+    {
+      "parameters": {
+        "url": "=https://api.cloudconvert.com/v2/jobs/{{ $('CloudConvert VIDEO A AUDIO').item.json.data.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "TU_TOKEN_API"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2112,
+        464
+      ],
+      "id": "7e5d6268-a495-4d84-b1d4-7fd1ba897158",
+      "name": "Verificar Status5"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a21bf4e4-bd68-4c8b-bbd1-dd82c1bd67a0",
+              "leftValue": "={{ $json.data.status }}",
+              "rightValue": "finished",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2336,
+        464
+      ],
+      "id": "b0978164-bc7e-478b-a247-b2185b3f08eb",
+      "name": "If7"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.cloudconvert.com/v2/jobs/{{ $('CloudConvert  PEGAR .SRT A VIDEO').item.json.data.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "TU_TOKEN_API"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1744,
+        672
+      ],
+      "id": "2feab8a5-934c-41bc-b682-25d504f0e56f",
+      "name": "Verificar Status6"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a21bf4e4-bd68-4c8b-bbd1-dd82c1bd67a0",
+              "leftValue": "={{ $json.data.status }}",
+              "rightValue": "finished",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1920,
+        672
+      ],
+      "id": "8dafe97e-1e02-449d-bb22-c4d0ff83c104",
+      "name": "If8"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        336,
+        784
+      ],
+      "id": "077771be-fe86-46fa-8063-c468948fe4e7",
+      "name": "Wait14"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "cf1d1f13-1bea-46d0-b5d6-3c15065c3723",
+              "leftValue": "={{ $json.result?.transcription?.subtitles?.[0]?.subtitles || '' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        864,
+        768
+      ],
+      "id": "ed691948-bd32-43dd-b25e-a05c4aa0a518",
+      "name": "¿Tiene Diálogos?"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('HTML').item.json.enlace_mp4 }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1680,
+        816
+      ],
+      "id": "2ffdd5d7-501c-4894-aa84-f9c5c7870082",
+      "name": "Descargar Video Original (Sin Subs)"
+    },
+    {
+      "parameters": {
+        "content": "## Carrusel \n**Double click** to edit me. [Guide](https://docs.n8n.io/workflows/components/sticky-notes/)",
+        "height": 2448,
+        "width": 2560,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "79521199-db1d-4d37-b29d-4ff4f7479b9a",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "url": "=https://graph.facebook.com/v25.0/{{ $('Subir Video2 IG').item.json.id }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "fields",
+              "value": "status_code"
+            },
+            {
+              "name": "access_token",
+              "value": "TU_IG_TOKEN"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        832,
+        1968
+      ],
+      "id": "cd394476-0dfe-4ba9-b008-17de4471580f",
+      "name": "Verificar Estado Video2",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1200,
+        2048
+      ],
+      "id": "a85e0d6c-c9e1-48c3-b93d-72adf56a7d9e",
+      "name": "Esperar 1 min y revisar2"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.status_code }}",
+                    "rightValue": "FINISHED",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "8df4065c-8c54-4101-b0aa-612db98b1e4d"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "finished"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "cdd1963f-77b4-4d1e-9967-0753393548e2",
+                    "leftValue": "={{ $json.status_code }}",
+                    "rightValue": "IN_PROGRESS",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "in progress"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "a81ecdde-f578-4cee-8b24-c8d89f324892",
+                    "leftValue": "={{ $json.status_code }}",
+                    "rightValue": "ERROR",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "error"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1024,
+        1952
+      ],
+      "id": "eb7a5248-c6f6-46b1-97d3-e54955a9c708",
+      "name": "Switch2"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1056,
+        2224
+      ],
+      "id": "16c1e384-b851-4f89-bda3-7eeff5440cd5",
+      "name": "No Operation, do nothing2"
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "name": "Wait Video2",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1168,
+        1696
+      ],
+      "id": "42274af8-3cd3-4867-b2cf-1e83ff219fdc"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $runIndex }}",
+              "value2": 3
+            }
+          ]
+        }
+      },
+      "name": "Retry Video2?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1376,
+        1696
+      ],
+      "id": "e206a0b4-52af-4fef-af37-b1a9734619cc"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.id }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "name": "IF Video2 OK",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1376,
+        1488
+      ],
+      "id": "e27f470b-39f0-4827-8bc9-05b2183ddc19"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "TU_IG_ACCOUNT_ID",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "media_type",
+              "value": "VIDEO"
+            },
+            {
+              "name": "video_url",
+              "value": "={{ $('Empaquetador de Carrusel').item.json.carrusel_urls[1] }}"
+            },
+            {
+              "name": "is_carousel_item",
+              "value": "true"
+            },
+            {
+              "name": "access_token",
+              "value": "TU_IG_TOKEN"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1168,
+        1488
+      ],
+      "id": "861c74bd-e968-4a13-9fba-5216e33dda16",
+      "name": "Subir Video2 IG",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cloudconvert.com/v2/jobs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "TU_TOKEN_CLOUDCONVERT"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"tasks\": {\n    \"importar-video-raw\": {\n      \"operation\": \"import/url\",\n      \"url\": \"{{ $('subir video con transcript a github').item.json.secure_url }}\",\n      \"filename\": \"video.mp4\"\n    },\n    \"formatear-video\": {\n      \"operation\": \"command\",\n      \"engine\": \"ffmpeg\",\n      \"command\": \"ffmpeg\",\n      \"input\": [\n        \"importar-video-raw\"\n      ],\n      \"arguments\": \"-i /input/importar-video-raw/video.mp4 -filter_complex \\\"[0:v]scale=1080:1350:force_original_aspect_ratio=increase,crop=1080:1350,boxblur=luma_radius=35:luma_power=2[bg];[0:v]scale=1080:1350:force_original_aspect_ratio=decrease[fg];[bg][fg]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2[outv]\\\" -map \\\"[outv]\\\" -map 0:a? -c:v libx264 -preset fast -profile:v main -r 30 -b:v 2500k -maxrate 2500k -bufsize 5000k -pix_fmt yuv420p -c:a aac -b:a 128k -ar 44100 -movflags +faststart -t 58 /output/video_final.mp4\",\n      \"output_format\": \"mp4\"\n    },\n    \"exportar-final\": {\n      \"operation\": \"export/url\",\n      \"input\": [\n        \"formatear-video\"\n      ]\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        752,
+        1040
+      ],
+      "id": "3d7224a4-69c6-4efc-ba6f-170159cd8e0b",
+      "name": "CloudConvert Slide 2",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        560,
+        1040
+      ],
+      "id": "f84f258f-ab80-4c9c-9c48-72fdb5177633",
+      "name": "Wait15"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        912,
+        1040
+      ],
+      "id": "51db08f4-1977-4be8-9fbc-9b0588b965f0",
+      "name": "Wait16"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.cloudconvert.com/v2/jobs/{{ $('CloudConvert Slide 2').item.json.data.id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "TU_TOKEN_API"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1072,
+        1040
+      ],
+      "id": "fe5a705e-bb06-4b01-b7c7-e1fd6620aa60",
+      "name": "Verificar Status7"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a21bf4e4-bd68-4c8b-bbd1-dd82c1bd67a0",
+              "leftValue": "={{ $json.data.status }}",
+              "rightValue": "finished",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1232,
+        1040
+      ],
+      "id": "089300ae-bdda-4de0-b64f-4bbd4467fed1",
+      "name": "If9"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Verificar Status7').item.json.data.tasks[0].result.files[0].url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1456,
+        1040
+      ],
+      "id": "0caf85ef-cb26-48e1-ab23-5f0db8c4a47b",
+      "name": "Descargar Slide 2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://TU_URL_SATORI",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"texto\": {{ JSON.stringify($('DeepSeek').item.json.output.gancho_reel) }}, \n  \"texto_cta\": \"{{ $('DeepSeek').item.json.output.cta_reel }}🚀\"\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        4128,
+        688
+      ],
+      "id": "0ea41ad1-3b2d-4cd7-90b2-cdf92b474f40",
+      "name": "Satori storie"
+    },
+    {
+      "parameters": {
+        "operation": "uploadFile",
+        "resource_type_file": "video",
+        "additionalFieldsFile": {}
+      },
+      "type": "n8n-nodes-cloudinary.cloudinary",
+      "typeVersion": 1,
+      "position": [
+        2336,
+        656
+      ],
+      "id": "2fb18fc9-36b0-4b75-b344-e95e8e164b54",
+      "name": "subir video con transcript a github",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "cloudinaryApi": {
+          "id": "gB6YySLmXLdoXAAd",
+          "name": "Cloudinary account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "uploadFile",
+        "resource_type_file": "video",
+        "additionalFieldsFile": {}
+      },
+      "type": "n8n-nodes-cloudinary.cloudinary",
+      "typeVersion": 1,
+      "position": [
+        2896,
+        1632
+      ],
+      "id": "9a503d66-98b5-4a90-9d0c-33f7d7b4fb50",
+      "name": "GitHub IG Reel",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "cloudinaryApi": {
+          "id": "gB6YySLmXLdoXAAd",
+          "name": "Cloudinary account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "uploadFile",
+        "resource_type_file": "video",
+        "additionalFieldsFile": {}
+      },
+      "type": "n8n-nodes-cloudinary.cloudinary",
+      "typeVersion": 1,
+      "position": [
+        1632,
+        1040
+      ],
+      "id": "01ee2d6d-f839-4b7d-89ae-c6fd5a650e03",
+      "name": "GitHub slide 2 verdadero",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "cloudinaryApi": {
+          "id": "gB6YySLmXLdoXAAd",
+          "name": "Cloudinary account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "uploadFile",
+        "resource_type_file": "video",
+        "additionalFieldsFile": {}
+      },
+      "type": "n8n-nodes-cloudinary.cloudinary",
+      "typeVersion": 1,
+      "position": [
+        1584,
+        1280
+      ],
+      "id": "f1a47ad7-abba-4659-8f82-475115a41b7d",
+      "name": "GitHub slide 1",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "cloudinaryApi": {
+          "id": "gB6YySLmXLdoXAAd",
+          "name": "Cloudinary account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "uploadFile",
+        "resource_type_file": "video",
+        "additionalFieldsFile": {}
+      },
+      "type": "n8n-nodes-cloudinary.cloudinary",
+      "typeVersion": 1,
+      "position": [
+        4848,
+        880
+      ],
+      "id": "8289b6d2-837c-4cc8-bf9c-2309d31f202a",
+      "name": "GitHub IG Storie",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "cloudinaryApi": {
+          "id": "gB6YySLmXLdoXAAd",
+          "name": "Cloudinary account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://EVOLUTION_URL",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"number\": \"TU_NUMERO_AQUI\",\n  \"options\": {\n    \"delay\": 1200,\n    \"presence\": \"composing\"\n  },\n  \"media\": \"{{ $('Verificar Status2').item.json.data.tasks[0].result.files[0].url }}\",\n  \"mediatype\": \"video\",\n  \"caption\": \"{{ $('DeepSeek').item.json.output.caption_tiktok.replace(/\\n/g, '\\\\n') }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        3472,
+        912
+      ],
+      "id": "5f16dceb-3c30-49a0-90d9-a672e8800034",
+      "name": "WA Tiktok"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://TU_URL_SATORI",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"texto\": {{ JSON.stringify($('DeepSeek').item.json.output.gancho_carrusel) }},\n  \"texto_cta\": \"Desliza para ver más 👉\",\n  \"imagen_fondo\": \"https://raw.githubusercontent.com/TU_USUARIO_GITHUB/TU_REPOSITORIO/main/cierre_vangard_definitivo.png\",\n  \"imagen_circular\": \"https://raw.githubusercontent.com/TU_USUARIO_GITHUB/TU_REPOSITORIO/main/cierre_vangard_definitivo.png\",\n  \"imagen_persona_recortada\": \"https://raw.githubusercontent.com/TU_USUARIO_GITHUB/TU_REPOSITORIO/main/cierre_vangard_definitivo.png\"\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2112,
+        192
+      ],
+      "id": "a8bd398b-8226-4ab5-9a0b-2f217a2bca1e",
+      "name": "RenderForm Slide 1.1"
+    },
+    {
+      "parameters": {
+        "operation": "uploadFile",
+        "additionalFieldsFile": {}
+      },
+      "type": "n8n-nodes-cloudinary.cloudinary",
+      "typeVersion": 1,
+      "position": [
+        2336,
+        192
+      ],
+      "id": "63e7bf4a-8e74-481f-85c7-05b736241e06",
+      "name": "RenderForm Slide 1",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "cloudinaryApi": {
+          "id": "gB6YySLmXLdoXAAd",
+          "name": "Cloudinary account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://TU_URL_SATORI",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"texto\": {{ JSON.stringify($('DeepSeek').item.json.output.explicacion_slide_2) }},\n  \"texto_cta\": \"Desliza para ver más 👉\",\n  \"imagen_fondo\": \"https://wsrv.nl/?url={{ encodeURIComponent($('Limit').item.json.thumbnail.replace(/&amp;/g, '&')) }}\",\n  \"imagen_circular\": \"https://raw.githubusercontent.com/TU_USUARIO_GITHUB/TU_REPOSITORIO/main/cierre_vangard_definitivo.png\",\n  \"imagen_persona_recortada\": \"https://raw.githubusercontent.com/TU_USUARIO_GITHUB/TU_REPOSITORIO/main/cierre_vangard_definitivo.png\"\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1888,
+        1040
+      ],
+      "id": "3d6d2cfb-3880-4834-94ce-94ce5a8145cc",
+      "name": "RenderForm Slide 2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Filtro Anti-Repetidos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "DeepSeek",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "describe image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "DeepSeek",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "DeepSeek",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "rapidsave": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek": {
+      "main": [
+        [
+          {
+            "node": "RenderForm Slide 1.1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Verificar Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verificar Status": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CloudConvert": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "obtener contexto": {
+      "main": [
+        [
+          {
+            "node": "Code Comentarios",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "describe image": {
+      "main": [
+        [
+          {
+            "node": "imagen content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "imagen content": {
+      "main": [
+        [
+          {
+            "node": "obtener contexto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Comentarios": {
+      "main": [
+        [
+          {
+            "node": "rapidsave",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtro Anti-Repetidos": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Empaquetador de Carrusel": {
+      "main": [
+        [
+          {
+            "node": "Guardia de Seguridad",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardia de Seguridad": {
+      "main": [
+        [
+          {
+            "node": "Subir Video IG1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Satori-api": {
+      "main": [
+        [
+          {
+            "node": "NODO_POSTIZ_UPLOAD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Satori-api",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CloudConvert1": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Verificar Status1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verificar Status1": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "descargar video",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "descargar video": {
+      "main": [
+        [
+          {
+            "node": "subir_video",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "GitHub IG Reel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Postiz fb reel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "channel_id1": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "subir_video": {
+      "main": [
+        [
+          {
+            "node": "channel_id1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NODO_POSTIZ_UPLOAD": {
+      "main": [
+        [
+          {
+            "node": "CloudConvert1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GitHub slide 2": {
+      "main": [
+        [
+          {
+            "node": "CloudConvert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "GitHub slide 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TikTok Init1": {
+      "main": [
+        [
+          {
+            "node": "TikTok Upload1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Satori TikTok": {
+      "main": [
+        [
+          {
+            "node": "NODO_POSTIZ_UPLOAD_TIKTOK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CloudConvert TikTok": {
+      "main": [
+        [
+          {
+            "node": "Wait6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NODO_POSTIZ_UPLOAD_TIKTOK": {
+      "main": [
+        [
+          {
+            "node": "CloudConvert TikTok",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait5": {
+      "main": [
+        [
+          {
+            "node": "Satori TikTok",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait6": {
+      "main": [
+        [
+          {
+            "node": "Verificar Status2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verificar Status2": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "WA Tiktok",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Wait7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait7": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait8": {
+      "main": [
+        [
+          {
+            "node": "Satori Youtube",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait9": {
+      "main": [
+        [
+          {
+            "node": "Verificar Status3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verificar Status3": {
+      "main": [
+        [
+          {
+            "node": "If4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If4": {
+      "main": [
+        [
+          {
+            "node": "Duracion ffprobe",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "descargar video2": {
+      "main": [
+        [
+          {
+            "node": "Upload a video2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Satori Youtube": {
+      "main": [
+        [
+          {
+            "node": "NODO_POSTIZ_UPLOAD_YOUTUBE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NODO_POSTIZ_UPLOAD_YOUTUBE": {
+      "main": [
+        [
+          {
+            "node": "CloudConvert  Youtube",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CloudConvert  Youtube": {
+      "main": [
+        [
+          {
+            "node": "Wait9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Duracion ffprobe": {
+      "main": [
+        [
+          {
+            "node": "Maximo 59s1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Maximo 59s1": {
+      "main": [
+        [
+          {
+            "node": "descargar video2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Video OK": {
+      "main": [
+        [
+          {
+            "node": "Subir Video2 IG",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Retry Video?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retry Video?": {
+      "main": [
+        [
+          {
+            "node": "Wait Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Video": {
+      "main": [
+        [
+          {
+            "node": "Subir Video IG1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Img1 OK": {
+      "main": [
+        [
+          {
+            "node": "Subir Imagen 2 IG1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Retry Img1?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retry Img1?": {
+      "main": [
+        [
+          {
+            "node": "Wait Img1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Img1": {
+      "main": [
+        [
+          {
+            "node": "Subir Imagen 1 IG1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Img2 OK": {
+      "main": [
+        [
+          {
+            "node": "Verificar Estado Video",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Retry Img2?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retry Img2?": {
+      "main": [
+        [
+          {
+            "node": "Wait Img2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Img2": {
+      "main": [
+        [
+          {
+            "node": "Subir Imagen 2 IG1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Carrusel OK": {
+      "main": [
+        [
+          {
+            "node": "Wait11",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Retry Carrusel?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retry Carrusel?": {
+      "main": [
+        [
+          {
+            "node": "Wait Carrusel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Carrusel": {
+      "main": [
+        [
+          {
+            "node": "Armar Carrusel1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publicar Carrusel IG": {
+      "main": [
+        [
+          {
+            "node": "IF Publicar OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Publicar OK": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Retry Publicar?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retry Publicar?": {
+      "main": [
+        [
+          {
+            "node": "Wait Publicar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Publicar": {
+      "main": [
+        [
+          {
+            "node": "Publicar Carrusel IG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Subir Video IG1": {
+      "main": [
+        [
+          {
+            "node": "IF Video OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Subir Imagen 1 IG1": {
+      "main": [
+        [
+          {
+            "node": "IF Img1 OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Subir Imagen 2 IG1": {
+      "main": [
+        [
+          {
+            "node": "IF Img2 OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Armar Carrusel1": {
+      "main": [
+        [
+          {
+            "node": "IF Carrusel OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait11": {
+      "main": [
+        [
+          {
+            "node": "Publicar Carrusel IG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cargar Reel": {
+      "main": [
+        [
+          {
+            "node": "IF Carga OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Carga OK": {
+      "main": [
+        [
+          {
+            "node": "Wait Procesamiento Reel",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Retry Carga?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retry Carga?": {
+      "main": [
+        [
+          {
+            "node": "Wait Carga",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Carga": {
+      "main": [
+        [
+          {
+            "node": "Cargar Reel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Procesamiento Reel": {
+      "main": [
+        [
+          {
+            "node": "Publicar Reel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publicar Reel": {
+      "main": [
+        [
+          {
+            "node": "IF Publicar OK1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Publicar OK1": {
+      "main": [
+        [
+          {
+            "node": "TikTok Init1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Retry Publicar?1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retry Publicar?1": {
+      "main": [
+        [
+          {
+            "node": "Wait Publicar1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Publicar1": {
+      "main": [
+        [
+          {
+            "node": "Publicar Reel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verificar Estado Video": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Esperar 1 min y revisar": {
+      "main": [
+        [
+          {
+            "node": "Verificar Estado Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Verificar Estado Video2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Esperar 1 min y revisar",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait4": {
+      "main": [
+        [
+          {
+            "node": "Satori storie",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait12": {
+      "main": [
+        [
+          {
+            "node": "Verificar Status4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verificar Status4": {
+      "main": [
+        [
+          {
+            "node": "If5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If5": {
+      "main": [
+        [
+          {
+            "node": "descargar video3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NODO_POSTIZ_UPLOAD_IG_STORIE": {
+      "main": [
+        [
+          {
+            "node": "CloudConvert IG Storie",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "descargar video3": {
+      "main": [
+        [
+          {
+            "node": "GitHub IG Storie",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verificar Estado Video1": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Esperar 1 min y revisar1": {
+      "main": [
+        [
+          {
+            "node": "Verificar Estado Video1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Publicar Storie",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Esperar 1 min y revisar1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SUBIR STORIE": {
+      "main": [
+        [
+          {
+            "node": "Verificar Estado Video1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CloudConvert IG Storie": {
+      "main": [
+        [
+          {
+            "node": "Wait12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Publicar OK2": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Retry Publicar?2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retry Publicar?2": {
+      "main": [
+        [
+          {
+            "node": "Wait Publicar2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Publicar2": {
+      "main": [
+        [
+          {
+            "node": "Publicar Storie",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publicar Storie": {
+      "main": [
+        [
+          {
+            "node": "IF Publicar OK2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CloudConvert  PEGAR .SRT A VIDEO": {
+      "main": [
+        [
+          {
+            "node": "Wait10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait10": {
+      "main": [
+        [
+          {
+            "node": "Verificar Status6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "DeepSeek Traductor",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "DeepSeek Traductor": {
+      "main": [
+        [
+          {
+            "node": "CloudConvert  PEGAR .SRT A VIDEO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CloudConvert VIDEO A AUDIO": {
+      "main": [
+        [
+          {
+            "node": "Wait13",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If6": {
+      "main": [
+        [
+          {
+            "node": "¿Tiene Diálogos?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait14",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verificar Status de Gladia (Nodo HTTP Request)": {
+      "main": [
+        [
+          {
+            "node": "If6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Iniciar Transcripcion Gladia": {
+      "main": [
+        [
+          {
+            "node": "Wait14",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "DeepSeek Traductor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DESCARGAR VIDEO CON SRT": {
+      "main": [
+        [
+          {
+            "node": "subir video con transcript a github",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait13": {
+      "main": [
+        [
+          {
+            "node": "Verificar Status5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verificar Status5": {
+      "main": [
+        [
+          {
+            "node": "If7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If7": {
+      "main": [
+        [
+          {
+            "node": "Iniciar Transcripcion Gladia",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait13",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verificar Status6": {
+      "main": [
+        [
+          {
+            "node": "If8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If8": {
+      "main": [
+        [
+          {
+            "node": "DESCARGAR VIDEO CON SRT",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait14": {
+      "main": [
+        [
+          {
+            "node": "Verificar Status de Gladia (Nodo HTTP Request)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Tiene Diálogos?": {
+      "main": [
+        [
+          {
+            "node": "DeepSeek Traductor",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Descargar Video Original (Sin Subs)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Descargar Video Original (Sin Subs)": {
+      "main": [
+        [
+          {
+            "node": "subir video con transcript a github",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verificar Estado Video2": {
+      "main": [
+        [
+          {
+            "node": "Switch2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Esperar 1 min y revisar2": {
+      "main": [
+        [
+          {
+            "node": "Verificar Estado Video2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch2": {
+      "main": [
+        [
+          {
+            "node": "Armar Carrusel1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Esperar 1 min y revisar2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Video2": {
+      "main": [
+        [
+          {
+            "node": "Subir Video2 IG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retry Video2?": {
+      "main": [
+        [
+          {
+            "node": "Wait Video2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Video2 OK": {
+      "main": [
+        [
+          {
+            "node": "Subir Imagen 1 IG1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Retry Video2?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Subir Video2 IG": {
+      "main": [
+        [
+          {
+            "node": "IF Video2 OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait15": {
+      "main": [
+        [
+          {
+            "node": "CloudConvert Slide 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CloudConvert Slide 2": {
+      "main": [
+        [
+          {
+            "node": "Wait16",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait16": {
+      "main": [
+        [
+          {
+            "node": "Verificar Status7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verificar Status7": {
+      "main": [
+        [
+          {
+            "node": "If9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If9": {
+      "main": [
+        [
+          {
+            "node": "Descargar Slide 2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait16",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Descargar Slide 2": {
+      "main": [
+        [
+          {
+            "node": "GitHub slide 2 verdadero",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Satori storie": {
+      "main": [
+        [
+          {
+            "node": "NODO_POSTIZ_UPLOAD_IG_STORIE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postiz fb reel": {
+      "main": [
+        [
+          {
+            "node": "Wait4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "subir video con transcript a github": {
+      "main": [
+        [
+          {
+            "node": "Wait8",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Wait5",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Wait15",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GitHub IG Reel": {
+      "main": [
+        [
+          {
+            "node": "Cargar Reel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GitHub slide 2 verdadero": {
+      "main": [
+        [
+          {
+            "node": "RenderForm Slide 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GitHub slide 1": {
+      "main": [
+        [
+          {
+            "node": "Empaquetador de Carrusel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GitHub IG Storie": {
+      "main": [
+        [
+          {
+            "node": "SUBIR STORIE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RenderForm Slide 1.1": {
+      "main": [
+        [
+          {
+            "node": "RenderForm Slide 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RenderForm Slide 1": {
+      "main": [
+        [
+          {
+            "node": "CloudConvert VIDEO A AUDIO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RenderForm Slide 2": {
+      "main": [
+        [
+          {
+            "node": "GitHub slide 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "meta": {
+    
+  },
+  "id": "",
+  "tags": []
+}
