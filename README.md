@@ -5,8 +5,10 @@
 Este repositorio contiene la arquitectura de un Agente Autónomo de Creación de Contenido. No es una simple automatización; es una fábrica de contenido operando en piloto automático.
 Diseñado para Agencias de Marketing, Creadores de Contenido y Startups que necesitan escalar su presencia digital en múltiples plataformas (Instagram, TikTok, YouTube Shorts, Facebook y WhatsApp) sin invertir cientos de horas semanales en edición y copywriting.
 📺 Mira la demostración en video de este sistema funcionando aquí
+
 ⚙️ ¿Cómo funciona el "Cerebro" de este Agente?
 Este flujo de n8n orquesta múltiples inteligencias artificiales y motores de renderizado en la nube para ejecutar el ciclo completo de vida de un video viral:
+
 📡 Curaduría de Tendencias (Scraping): Monitorea feeds RSS (ej. Reddit) para encontrar videos virales en tendencia, aplicando un filtro anti-duplicados en base de datos.
 📥 Extracción y Procesamiento: Descarga el video original y extrae el audio de forma asíncrona.
 🧠 Transcripción y Traducción AI (Gladia + DeepSeek): Envía el audio a Gladia AI para generar transcripciones precisas, y luego usa el modelo LLM de DeepSeek (con prompting avanzado) para transcrear y localizar el guion al español neutro, adaptando el humor y el contexto.
